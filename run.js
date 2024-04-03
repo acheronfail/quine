@@ -5,6 +5,9 @@ import { diffChars } from 'diff';
 import printableString from 'printable-string';
 import c from 'chalk';
 
+const print = (...messages) => messages.forEach((msg) => process.stdout.write(msg));
+const println = (...messages) => print(...messages, '\n');
+
 function hadAnError() {
   process.exitCode = (process.exitCode ?? 0) + 1;
 }
@@ -12,39 +15,46 @@ function hadAnError() {
 const runners = {
   node: (file) => `node "${file}"`,
   rust: (file, name) => `rustc "${file}" --crate-name "${name}" -o out && ./out`,
+  python: (file) => `python3 "${file}"`,
 };
 
+const $$ = $({ encoding: 'utf8', stripFinalNewline: false, shell: true, reject: false });
 const srcDir = 'src';
 for (const entry of await readdir(srcDir)) {
+  if (process.argv[2] && !entry.includes(process.argv[2])) continue;
+
   const filepath = join(srcDir, entry);
 
   const [lang, name, _extension] = entry.split('.');
   const command = runners[lang](filepath, name);
   if (!command) {
-    console.log(c.yellow(`No runner for ${lang}`));
+    println(c.yellow(`No runner for ${lang}`));
     hadAnError();
     continue;
   }
 
-  console.log(`Running (${c.cyan(lang)}) ${name}...`);
-  const { stdout, stderr, failed } = await $({ stripFinalNewline: false, shell: true, reject: false })`${command}`;
+  print(`Running (${c.cyan(lang)}) ${name}...`);
+  const { stdout, stderr, failed } = await $$`${command}`;
 
   if (failed) {
-    console.log(c.yellow(`${entry} did not run successfully\n${stderr.trim()}`));
+    println(c.yellow(` failed!\n${stderr.trim()}`));
     hadAnError();
     continue;
   }
 
-  const source = await readFile(filepath);
-  const changes = diffChars(source.toString(), stdout.toString());
+  const source = await readFile(filepath, 'utf-8');
+  const changes = diffChars(source, stdout.toString());
   const isAQuine = changes.length === 1 && changes[0].count === source.length;
   if (!isAQuine) {
-    console.log(c.yellow(`${entry} is not a valid quine`));
-    console.log(
+    println(c.yellow(` not a valid quine`));
+    println(c.green('expected:   '), source.trim());
+    println(c.red('received:   '), stdout.trim());
+    println(
+      c.cyan('difference: '),
       changes
         .map((change) => {
-          if (change.added) return c.bgGreen(printableString(change.value));
-          if (change.removed) return c.bgRed(printableString(change.value));
+          if (change.added) return c.black.bgGreen(printableString(change.value));
+          if (change.removed) return c.black.bgRed(printableString(change.value));
           return change.value;
         })
         .join('')
@@ -53,4 +63,6 @@ for (const entry of await readdir(srcDir)) {
     hadAnError();
     continue;
   }
+
+  println(c.green('success'));
 }
