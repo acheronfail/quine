@@ -48,7 +48,7 @@ for (const entry of entries) {
   }
 
   const source = await readFile(filepath, 'utf-8');
-  const changes = diffChars(source, stdout.toString());
+  const changes = diffChars(source, stdout);
   const isAQuine = changes.length === 1 && changes[0].count === source.length;
   if (!isAQuine) {
     println(c.yellow(` not a valid quine`));
