@@ -1,7 +1,1 @@
-from json import dumps as s
-
-print(
-    "from json import dumps as s\n\nprint(\n    {0}.format(\n        s({0})\n    )\n)".format(
-        s("from json import dumps as s\n\nprint(\n    {0}.format(\n        s({0})\n    )\n)")
-    )
-)
+q=chr(34);print("q=chr(34);print({0}.format(q+{0}+q))".format(q+"q=chr(34);print({0}.format(q+{0}+q))"+q))
