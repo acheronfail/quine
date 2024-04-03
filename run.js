@@ -20,8 +20,13 @@ const runners = {
 
 const $$ = $({ encoding: 'utf8', stripFinalNewline: false, shell: true, reject: false });
 const srcDir = 'src';
-for (const entry of await readdir(srcDir)) {
-  if (process.argv[2] && !entry.includes(process.argv[2])) continue;
+const entries = await readdir(srcDir);
+let skipped = 0;
+for (const entry of entries) {
+  if (process.argv[2] && !entry.includes(process.argv[2])) {
+    skipped++;
+    continue;
+  }
 
   const filepath = join(srcDir, entry);
 
@@ -64,5 +69,13 @@ for (const entry of await readdir(srcDir)) {
     continue;
   }
 
-  println(c.green('success'));
+  println(c.green(' success'));
 }
+
+const total = entries.length;
+const failed = process.exitCode ?? 0;
+const passed = total - skipped - failed;
+println(`total:   ${total}`);
+println(c.green(`passed:  ${passed}`));
+println(c.red(`failed:  ${failed}`));
+println(c.yellow(`skipped: ${skipped}`));
