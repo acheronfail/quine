@@ -42,7 +42,8 @@ for (const entry of entries) {
   const { stdout, stderr, failed } = await $$`${command}`;
 
   if (failed) {
-    println(c.yellow(` failed!\n${stderr.trim()}`));
+    println(c.red(' failed!'));
+    println(c.yellow(stderr.trim()));
     hadAnError();
     continue;
   }
