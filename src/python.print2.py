@@ -1,1 +1,1 @@
-me = 'me = %r; print(me %% me)'; print(me % me)
+s = 's = %r; print(s %% s)'; print(s % s)
