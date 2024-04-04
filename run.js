@@ -12,10 +12,18 @@ function hadAnError() {
   process.exitCode = (process.exitCode ?? 0) + 1;
 }
 
+function isAQuine(changes, sourceLength) {
+  if (changes.length !== 1) return false;
+  const { count, added, removed } = changes[0];
+  if (added || removed) return false;
+  return count === sourceLength;
+}
+
 const runners = {
   node: (file) => `node "${file}"`,
   rust: (file, name) => `rustc "${file}" --crate-name "${name}" -o out && ./out`,
   python: (file) => `python3 "${file}"`,
+  c: (file) => `gcc "${file}" -o out && ./out`,
 };
 
 const $$ = $({ encoding: 'utf8', stripFinalNewline: false, shell: true, reject: false });
@@ -50,8 +58,7 @@ for (const entry of entries) {
 
   const source = await readFile(filepath, 'utf-8');
   const changes = diffChars(source, stdout);
-  const isAQuine = changes.length === 1 && changes[0].count === source.length;
-  if (!isAQuine) {
+  if (!isAQuine(changes, source.length)) {
     println(c.yellow(` not a valid quine`));
     println(c.green('expected:   '), source.trim());
     println(c.red('received:   '), stdout.trim());
