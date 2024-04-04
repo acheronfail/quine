@@ -24,6 +24,7 @@ const runners = {
   rust: (file, name) => `rustc "${file}" --crate-name "${name}" -o out && ./out`,
   python: (file) => `python3 "${file}"`,
   c: (file) => `gcc "${file}" -o out && ./out`,
+  ruby: (file) => `ruby "${file}"`,
 };
 
 const $$ = $({ encoding: 'utf8', stripFinalNewline: false, shell: true, reject: false });
