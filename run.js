@@ -61,8 +61,8 @@ for (const entry of entries) {
   const changes = diffChars(source, stdout);
   if (!isAQuine(changes, source.length)) {
     println(c.yellow(` not a valid quine`));
-    println(c.green('expected:   '), source.trim());
-    println(c.red('received:   '), stdout.trim());
+    println(c.green('  expected: '), source.trim());
+    println(c.red('  received: '), stdout.trim());
     println(
       c.cyan('difference: '),
       changes
